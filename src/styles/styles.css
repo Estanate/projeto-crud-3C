@@ -23,6 +23,50 @@ header{
     margin: 20px 10%;
 }
 
+.users{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.user-card{
+    border: 1px solid #DEDEDF;
+    border-radius: 10px;
+}
+
+.user-info{
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 10px;
+    justify-content: space-between;
+    border-bottom: 1px solid #DEDEDF;
+}
+
+.user-buttons{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px;
+    gap: 10px;
+    button{
+    background-color: transparent;
+    padding: 5px 20px;
+    border-radius: 5px;
+    width: 100%;
+    }
+}
+
+.delete{
+    border: red solid 1px;
+    color: red;
+}
+
+.edit{
+    border: black solid 1px;
+    color: black;
+}
+
 .create-user-container{
     display: grid;
     grid-template-columns: 1fr;
