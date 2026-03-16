@@ -20,7 +20,10 @@ header{
 }
 
 .users-container{
+    display: flex;
+    flex-direction: column;
     margin: 20px 10%;
+    gap: 20px;
 }
 
 .users{
