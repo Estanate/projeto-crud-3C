@@ -1,21 +1,103 @@
-import { createUser } from
-  './scripts/api/create.js';
+import { createUser } from './scripts/api/create.js';
+import { renderUsers, findUserById  } from './scripts/dom/render.js';
+import { deleteUser } from './scripts/api/delete.js';
+import { updateUser, patchUser } from './scripts/api/update.js';
 
-import { renderUsers } from
-  './scripts/dom/render.js';
+const apiUrl = 'http://localhost:8000/api/users';
+const form = document.getElementById('create-user-form');
+const formTitle = document.getElementById('form-title');
+const submitBtn = form.querySelector('button[type="submit"]');
+const cancelBtn = document.getElementById('cancel-edit');
+const usersSection = document.getElementById('users');
+const formError = document.getElementById('form-error');
 
-const apiUrl =
-  'http://localhost:8000/api/users';
+//Estados de edição
+let editingId = null;
+let originalUser = null;
 
-const form =
-document.getElementById('create-user-form');
 
 // Quando o DOM estiver pronto, renderiza
 document.addEventListener(
   'DOMContentLoaded',
   () => renderUsers(apiUrl)
 );
+;
 
+function getUserFromCard(button) {
+  const card = button.closest('.user-card');
+  return findUserById(Number(card.id));
+}
+
+function enterEditMode(user) {
+  editingId = user.id;
+  originalUser = { ...user };
+
+  // Preenche o formulário:
+  document.getElementById('name').value
+    = user.name;
+  document.getElementById('age').value
+    = user.age;
+  document.getElementById('email').value
+    = user.email;
+
+  // Muda a interface:
+  formTitle.textContent = 'Edit User';
+  submitBtn.textContent = 'Update';
+  cancelBtn.style.display = '';
+
+  // Foca no primeiro campo:
+  document.getElementById('name').focus();
+}
+
+function exitEditMode() {
+  editingId = null;
+  originalUser = null;
+  formTitle.textContent = 'Create User';
+  submitBtn.textContent = 'Create';
+  cancelBtn.style.display = 'none';
+  form.reset();
+}
+
+
+function showError(message) {
+  formError.textContent = message;
+  formError.classList.remove('d-none');
+}
+
+function hideError() {
+  formError.classList.add('d-none');
+  formError.textContent = '';
+}
+
+usersSection.addEventListener('click',
+  async (event) => {
+    const { target } = event;
+
+    if (target.dataset.action === 'edit') {
+      enterEditMode(getUserFromCard(target));
+    }
+
+    if (target.dataset.action === 'delete') {
+      const user = getUserFromCard(target);
+
+      if (!confirm(
+        'Are you sure you want to '
+        + 'delete this user?'
+      )) return;
+
+      try {
+        await deleteUser(apiUrl, user.id);
+
+        if (editingId === user.id)
+          exitEditMode();
+
+        renderUsers(apiUrl);
+      } catch (error) {
+        showError(error.message);
+      }
+    }
+  }
+);
 form.addEventListener('submit',
   async (event) => {
     event.preventDefault();
@@ -30,28 +112,53 @@ form.addEventListener('submit',
     hideError();
 
     try {
-      // Por enquanto, só criação:
-      await createUser(
-        apiUrl, { name, age, email }
-      );
+      if (editingId !== null) {
+        // === MODO EDIÇÃO ===
 
-      form.reset();
+        // Descobre o que mudou:
+        const changed = {};
+        if (name !== originalUser.name)
+          changed.name = name;
+        if (Number(age) !== originalUser.age)
+          changed.age = age;
+        if (email !== originalUser.email)
+          changed.email = email;
+
+        // Nada mudou? Sai da edição.
+        if (Object.keys(changed).length === 0) {
+          exitEditMode();
+          return;
+        }
+
+        // Todos mudaram → PUT (completo)
+        // Alguns mudaram → PATCH (parcial)
+        const allChanged =
+          Object.keys(changed).length === 3;
+
+        if (allChanged) {
+          await updateUser(
+            apiUrl, editingId,
+            { name, age, email }
+          );
+        } else {
+          await patchUser(
+            apiUrl, editingId, changed
+          );
+        }
+      } else {
+        // === MODO CRIAÇÃO ===
+        await createUser(
+          apiUrl, { name, age, email }
+        );
+      }
+
+      exitEditMode();
       renderUsers(apiUrl);
     } catch (error) {
       showError(error.message);
     }
   }
+)
+cancelBtn.addEventListener(
+  'click', exitEditMode
 );
-
-const formError =
-  document.getElementById('form-error');
-
-function showError(message) {
-  formError.textContent = message;
-  formError.classList.remove('d-none');
-}
-
-function hideError() {
-  formError.classList.add('d-none');
-  formError.textContent = '';
-}

@@ -1,29 +1,29 @@
-import { getUsers } from '../api/read.js';
+import { getUsers } from '../api/read.js';//importando o getUsers
 
-let usersCache = [];
+let usersCache = []; //definindo um cache para usuarios, vazio
 
-export function findUserById(id) {
+export function findUserById(id) { //função procura o user pelo id fornecido, usando o cache
   return usersCache.find(
     (user) => user.id === id
   );
 }
 
-export async function renderUsers(apiUrl) {
-  const users = await getUsers(apiUrl);
-  usersCache = users;
+export async function renderUsers(apiUrl) { //função para renderizar os usuarios; 
+  const users = await getUsers(apiUrl);     //Transfere os dados pelo getUsers para o cache (deixa mais facil a leitura
+  usersCache = users;                       //                                                e manipulação dos dados)
 
   const usersSection =
     document.getElementById('users');
 
-  if (users.length === 0) {
+  if (users.length === 0) { //se n tiver usuarios, muda o texto para "No users found"
     usersSection.innerHTML =
       '<p class="text-muted">No users found.</p>';
     return;
   }
 
-  usersSection.innerHTML = '';
+  usersSection.innerHTML = '';  //se tiver usuarios, deixa a seção limpa, pra no futuro adcionar usuarios
 
-  users.forEach((user) => {
+  users.forEach((user) => { 
     const userDiv = document.createElement('div');
     userDiv.classList.add('col-md-3');
 
