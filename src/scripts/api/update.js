@@ -1,5 +1,5 @@
-export async function updateUser(
-  apiUrl, id, { name, age, email }
+export async function updateUser(  //função pra atualizar o usuario, recebe o caminho da api, e um obj com as info
+  apiUrl, id, { name, age, email } //                                                   necessarias para atualizar
 ) {
   const response = await fetch(
     `${apiUrl}?id=${id}`, {

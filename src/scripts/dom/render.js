@@ -23,8 +23,8 @@ export async function renderUsers(apiUrl) { //função para renderizar os usuari
 
   usersSection.innerHTML = '';  //se tiver usuarios, deixa a seção limpa, pra no futuro adcionar usuarios
 
-  users.forEach((user) => { 
-    const userDiv = document.createElement('div');
+  users.forEach((user) => { //para cada usuario, cria um elemento div, com a classe col-md-3 (bootstrap), e adciona o   
+    const userDiv = document.createElement('div');//                                          card do usuario em html
     userDiv.classList.add('col-md-3');
 
     userDiv.innerHTML = `
@@ -48,6 +48,6 @@ export async function renderUsers(apiUrl) { //função para renderizar os usuari
       </div>
     `;
 
-    usersSection.appendChild(userDiv);
+    usersSection.appendChild(userDiv); //add o card do usuario como filho do users
   });
 }
